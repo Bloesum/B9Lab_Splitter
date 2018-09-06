@@ -1,7 +1,6 @@
 pragma solidity 0.4.24;
 
 contract Splitter {
-	bool private alreadyPaid;
 	address private creator;
 	uint public splitterBalance;
 	
@@ -14,8 +13,6 @@ contract Splitter {
 	
 	function split(address recipient1, address recipient2) public payable {
 	    uint splitAmount = msg.value / 2;
-	    require(!alreadyPaid);
-	    alreadyPaid = true;
         recipient1.transfer(splitAmount);
 	    recipient2.transfer(splitAmount);
 	    emit logTransfer(msg.sender, recipient1, recipient2, splitAmount );

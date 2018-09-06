@@ -1,0 +1,25 @@
+{
+  "name": "splitter",
+  "version": "1.0.0",
+  "description": "Considerations: - Upgraded Truffle to latest: v4.1.14 (Solidity v0.4.24) - Viewing contract balances doesn't make any sense. The sent amount will immediatelly be split and resent",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bloesum/B9Lab_Splitter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bloesum/B9Lab_Splitter/issues"
+  },
+  "homepage": "https://github.com/Bloesum/B9Lab_Splitter#readme",
+  "dependencies": {
+    "web3": "^1.0.0-beta.36"
+  }
+}
