@@ -1,26 +1,24 @@
 pragma solidity 0.4.24;
 
 contract Splitter {
-	address private creator;
-	uint public splitterBalance;
-	
-	event logTransfer(address indexed _from, address indexed _to1, address indexed _to2, uint _amount);
-	
-	constructor () public payable {
-	    creator = msg.sender;
+    uint public splitterBalance;
+    mapping (address => uint) pendingWithdrawals;
+    
+    constructor () public payable {
 	    splitterBalance = msg.value;
 	}
-	
+
 	function split(address recipient1, address recipient2) public payable {
+	    splitterBalance += msg.value;
 	    uint splitAmount = msg.value / 2;
-        recipient1.transfer(splitAmount);
-	    recipient2.transfer(splitAmount);
-	    emit logTransfer(msg.sender, recipient1, recipient2, splitAmount );
-	}
-	
-	function kill() public {
-        if (msg.sender == creator) selfdestruct(msg.sender);
+	    pendingWithdrawals[recipient1] += splitAmount;
+	    pendingWithdrawals[recipient2] += splitAmount;
     }
-    
-    function () public payable {}
+
+    function withdraw() public {
+        uint amount = pendingWithdrawals[msg.sender];
+        pendingWithdrawals[msg.sender] = 0;
+        splitterBalance -= amount;
+        msg.sender.transfer(amount);
+    }
 }
