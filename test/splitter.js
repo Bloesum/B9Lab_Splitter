@@ -1,40 +1,52 @@
-var Splitter = artifacts.require("./Splitter.sol");
+var Splitter = artifacts.require("../contracts/Splitter.sol");
 
 contract('Testing my splitter', function(accounts) {
-  it("splits the send amount in half and send it to others", function() {
+
+  // beforeEach('setup contract for each test', function () {
+  //   splitter = Splitter.new();
+  // }); TODO
+
+  it("can receive amount to be split", function() {
 
   	var splitter;
-
-    // Get initial balances of first and second account.
     var account_one = accounts[1];
     var account_two = accounts[2];
-
-    var account_one_starting_balance;
-    var account_two_starting_balance;
-    var account_one_ending_balance;
-    var account_two_ending_balance;
-
+    var contract_starting_balance;
+    var contract_ending_balance;
     var sendAmount = 10;
 
     return Splitter.deployed().then(function(instance) {
       splitter = instance;
-      return splitter.getBalance(account_one);
+      return web3.eth.getBalance(splitter.address).toNumber();
     }).then(function(balance) {
-      account_one_starting_balance = balance.toNumber();
-      return splitter.getBalance(account_two);
+      contract_starting_balance = balance;
+      return splitter.split(account_one, account_two, {value: 10});
+    }).then(function(result) {
+      return web3.eth.getBalance(splitter.address).toNumber();
     }).then(function(balance) {
-      account_two_starting_balance = balance.toNumber();
-      return splitter.split.value(sendAmount)(sendAmount, account_one, account_two);
-    }).then(function() {
-      return splitter.getBalance(account_one);
-    }).then(function(balance) {
-      account_one_ending_balance = balance.toNumber();
-      return splitter.getBalance(account_two);
-    }).then(function(balance) {
-      account_two_ending_balance = balance.toNumber();
+      contract_ending_balance = balance;
+      assert.equal(contract_ending_balance, contract_starting_balance + sendAmount , "Amount wasn't correctly sent to contract");
+    });
+  });
 
-      assert.equal(account_one_ending_balance, account_one_starting_balance + ( sendAmount / 2) , "Amount wasn't correctly sent to receiver1");
-      assert.equal(account_two_ending_balance, account_two_starting_balance + ( sendAmount / 2) , "Amount wasn't correctly sent to receiver2");
+  it("can withdraw", function() {
+
+    var splitter;
+    var account_one = accounts[1];
+    var account_one_starting_balance;
+    var account_one_ending_balance;
+    var sendAmount = 10;
+
+    return Splitter.deployed().then(function(instance) {
+      splitter = instance;
+      return web3.eth.getBalance(account_one).toNumber();
+    }).then(function(balance) {
+      account_one_starting_balance = balance;
+      splitter.withdraw({from: account_one});
+      return web3.eth.getBalance(account_one).toNumber();
+    }).then(function(balance) {
+      account_one_ending_balance = balance;
+      assert.equal(account_one_ending_balance, account_one_starting_balance + ( '10' / 2 ), "Amount wasn't correctly withdrawn");
     });
   });
 });
