@@ -1,33 +1,32 @@
 pragma solidity 0.4.24;
 
 contract Splitter {
-    mapping (address => uint) pendingWithdrawals;
+    mapping (address => uint) userBalances;
     
-    event logSplit(address indexed from, address indexed to1, address indexed to2, uint amount, uint remainder);
-    event logWithdraw(address indexed from, uint amount);
+    event LogSplitFunds(address indexed from, address indexed to1, address indexed to2, uint amount, uint remainder);
+    event LogWithdrawFunds(address indexed from, uint amount);
     
-    constructor () public payable {
-    }
+    constructor () public { }
 
-    function split(address recipient1, address recipient2) public payable {
+    function splitFunds(address recipient1, address recipient2) public payable {
         require(recipient1 != 0 && recipient2 != 0, "No empty recipient");
         uint splitAmount = msg.value / 2;
         uint remainder = msg.value - ( 2 * splitAmount);
         
-        pendingWithdrawals[recipient1] += splitAmount;
-        pendingWithdrawals[recipient2] += splitAmount;
+        userBalances[recipient1] += splitAmount;
+        userBalances[recipient2] += splitAmount;
         
         if ( remainder > 0) {
-           pendingWithdrawals[msg.sender] += remainder; 
+           userBalances[msg.sender] += remainder; 
         }
         
-        emit logSplit(msg.sender, recipient1, recipient2, splitAmount, remainder);
+        emit LogSplitFunds(msg.sender, recipient1, recipient2, splitAmount, remainder);
     }
 
-    function withdraw() public {
-        uint amount = pendingWithdrawals[msg.sender];
-        pendingWithdrawals[msg.sender] = 0;
+    function withdrawFunds() public {
+        uint amount = userBalances[msg.sender];
+        userBalances[msg.sender] = 0;
+        emit LogWithdrawFunds(msg.sender, amount);
         msg.sender.transfer(amount);
-        emit logWithdraw(msg.sender, amount);
-    }
+        }
 }
